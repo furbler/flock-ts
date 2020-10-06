@@ -50,7 +50,7 @@ import {Canvas2DUtility} from "./canvas2d"
             //適当に配置
             let angle = i * Math.PI / 6
             let rad = canvas.width / 4;
-            boids[i] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 5, -5, i, 1.3, 'nooob', '../image/octopus_open.png');
+            boids[i] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2.3, -1.2, i, 1.3, 'nooob', '../image/octopus_open.png');
         }
 
         console.log('画像の読み込み完了。');
@@ -65,6 +65,7 @@ import {Canvas2DUtility} from "./canvas2d"
         util.drawRect(0, 0, canvas.width, canvas.height, '#000000');
 
         boids.map((boid) => {
+            boid.update();
             boid.draw();
         });
 

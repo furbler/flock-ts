@@ -64,14 +64,27 @@ export class Vector2{
 
 
 export class Boid{
+    cohesion_coef: number; // パラメータ：群れの中心に向かう度合
+    separation_coef: number; // パラメータ：仲間を避ける度合
+    alignment_coef: number; // パラメータ：群れの平均速度に合わせる度合
+
     //描画などに利用する 2D コンテキスト
     ctx: CanvasRenderingContext2D;
     //元画像のファイルに対する拡大率
     scale: number;
     // Birdインスタンスの現在の位置
     pos: Vector2;
+    //Boidインスタンスの更新前の位置
+    prePos: Vector2;
     // 移動量(速度)
     vel: Vector2;
+    //結合ルールによる速度変化量
+    cohesion: Vector2;
+    //分離ルールによる速度変化量
+    separation: Vector2;
+    //整列ルールによる速度変化量
+    alignment: Vector2;
+
     // 個体を識別するid
     id: number;
     //敵のタイプ
@@ -86,9 +99,17 @@ export class Boid{
     image: HTMLImageElement;
 
     constructor(ctx, x, y, vx, vy, id, scale, type, imgPath,){
+        this.cohesion_coef = 1;
+        this.separation_coef = 0.8;
+        this.alignment_coef = 0.2;
+
         this.ctx = ctx;
         this.pos = new Vector2(x, y);
+        this.prePos = new Vector2(x, y);
         this.vel = new Vector2(vx, vy);
+        this.cohesion = new Vector2(0, 0);
+        this.separation = new Vector2(0, 0);
+        this.alignment = new Vector2(0, 0);
         this.id = id;
         this.scale = scale;
         this.imgPath = imgPath;
@@ -102,6 +123,14 @@ export class Boid{
         this.image.src = imgPath;
     }
 
+    update(){
+//        this.vel.x = this.cohesion_coef * this.cohesion.x;
+ //       this.vel.y = this.cohesion_coef * this.cohesion.y;
+        this.pos.set(this.pos.x + this.vel.x, this.pos.y + this.vel.y);
+        //壁との衝突判定
+        this.CollideWall();
+    }
+
 
     draw(){
         // キャラクターの幅やオフセットする量を加味して塗りつぶす
@@ -112,5 +141,35 @@ export class Boid{
             this.width,
             this.height
         );
+    }
+
+    //結合ルール
+    f_cohesion(boids: Array<Boid>){
+        //群れの座標値の合計を求める
+        let tmpX = 0, tmpY = 0;
+        for(let i = 0; i < boids.length; ++i){
+            if(this.id === i) continue;
+            tmpX += boids[i].prePos.x;
+            tmpY += boids[i].prePos.y;
+        }
+        //重心の計算(自身は含めない)
+        tmpX /= (boids.length - 1);
+        tmpY /= (boids.length - 1)
+        //速度変化量
+        this.cohesion.x = tmpX - this.pos.x;
+        this.cohesion.y = tmpY - this.pos.y;
+    }
+    //壁との衝突判定
+    CollideWall(){
+        //左右の壁に衝突していた場合
+        if(this.pos.x - this.width / 2 < 0 || this.pos.x + this.width / 2 > this.ctx.canvas.width){
+            //反射
+            this.vel.x *= -1;
+        }
+        //上下の壁に衝突していた場合
+        if(this.pos.y - this.height / 2 < 0 || this.pos.y + this.height / 2 > this.ctx.canvas.height){
+            //反射
+            this.vel.y *= -1;
+        }
     }
 }
