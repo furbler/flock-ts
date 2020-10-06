@@ -3,9 +3,9 @@ import {Canvas2DUtility} from "./canvas2d"
 
 (() => {
     //canvasの幅
-    const CANVAS_WIDTH = 640;
+    const CANVAS_WIDTH = 840;
     //canvas の高さ
-    const CANVAS_HEIGHT = 600;
+    const CANVAS_HEIGHT = 700;
     //群れの個体数
     const FLOCK_NUM = 11;
 
@@ -48,9 +48,9 @@ import {Canvas2DUtility} from "./canvas2d"
         //群れの個体を生成
         for(let i = 0; i < FLOCK_NUM; ++i){
             //適当に配置
-            let angle = i * Math.PI / 6
-            let rad = canvas.width / 4;
-            boids[i] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2.3, -1.2, i, 1.3, 'nooob', '../image/octopus_open.png');
+            let angle = i * Math.PI / 6;
+            let rad = 70;
+            boids[i] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2, -2, i, 1.3, 'nooob', '../image/octopus_open.png');
         }
 
         console.log('画像の読み込み完了。');
@@ -65,7 +65,10 @@ import {Canvas2DUtility} from "./canvas2d"
         util.drawRect(0, 0, canvas.width, canvas.height, '#000000');
 
         boids.map((boid) => {
-            boid.update();
+            boid.update_calc(boids);
+        });
+        boids.map((boid) => {
+            boid.update_actual();
             boid.draw();
         });
 
