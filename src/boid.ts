@@ -99,9 +99,9 @@ export class Boid{
     image: HTMLImageElement;
 
     constructor(ctx, x, y, vx, vy, id, scale, type, imgPath,){
-        this.cohesion_coef = 0.006; //群れの中心に向かう度合
-        this.separation_coef = 0.1; //仲間を避ける度合
-        this.alignment_coef = 0.008; //群れの平均速度に合わせる度合
+        this.cohesion_coef = 0.003; //群れの中心に向かう度合
+        this.separation_coef = 0.3; //仲間を避ける度合
+        this.alignment_coef = 0.002; //群れの平均速度に合わせる度合
         this.separation_thres = 100;
 
         this.ctx = ctx;
