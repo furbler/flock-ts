@@ -3,9 +3,9 @@ import {Canvas2DUtility} from "./canvas2d"
 
 (() => {
     //canvasの幅
-    const CANVAS_WIDTH = 640;
+    const CANVAS_WIDTH = 600;
     //canvas の高さ
-    const CANVAS_HEIGHT = 500;
+    const CANVAS_HEIGHT = 400;
     //群れの個体数
     const FLOCK_NUM = 11;
 
@@ -27,7 +27,6 @@ import {Canvas2DUtility} from "./canvas2d"
         cohesion_coef: 30, //群れの中心に向かう度合
         separation_coef: 30, //仲間を避ける度合
         alignment_coef: 20, //群れの平均速度に合わせる度合
-
         separation_thres: 100, //分離ルールの距離の閾値
         speed_limit: 4, //個体の制限速度
     };
@@ -84,7 +83,7 @@ import {Canvas2DUtility} from "./canvas2d"
         //実際に位置を更新して描画
         boids.map((boid) => {
             boid.update_actual();
-            boid.draw();
+            boid.rotationDraw();
         });
 
         // 恒常ループのために描画処理を再帰呼出しする

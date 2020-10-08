@@ -48,10 +48,7 @@ export class Vector2{
         return new Vector2(x, y);
     }
 
-    /**
-     * 指定されたラジアン分だけ自身を回転させる
-     * @param {number} radian - 回転量
-     */
+    //指定された角度(radian単位)分だけ自身のベクトルを回転させる
     rotate(radian){
         // 指定されたラジアンからサインとコサインを求める
         let s = Math.sin(radian);
@@ -80,6 +77,9 @@ export class Boid{
     pos: Vector2;
     // 移動量(速度)
     vel: Vector2;
+    //向いている角度(進行方向)
+    //x軸方向を0radとする(tan関数などに合わせるため)
+    angle: number;
     //結合ルールによる速度変化量
     cohesion: Vector2;
     //分離ルールによる速度変化量
@@ -111,6 +111,8 @@ export class Boid{
         this.pos = new Vector2(x, y);
         this.pos = new Vector2(x, y);
         this.vel = new Vector2(vx, vy);
+        //進行方向を向く
+        this.angle = Math.atan2(vy, vx);
         this.cohesion = new Vector2(0, 0);
         this.separation = new Vector2(0, 0);
         this.alignment = new Vector2(0, 0);
@@ -143,20 +145,11 @@ export class Boid{
             this.vel.y = this.vel.y / speed * this.speed_limit;
         }
         this.pos.set(this.pos.x + this.vel.x, this.pos.y + this.vel.y);
+        //進行方向を向く
+        this.angle = Math.atan2(this.vel.y, this.vel.x);
 
         //壁との衝突判定
         this.CollideWall();
-    }
-
-    draw(){
-        // キャラクターの幅やオフセットする量を加味して塗りつぶす
-        this.ctx.drawImage(
-            this.image,
-            this.pos.x - this.width / 2,
-            this.pos.y - this.height / 2,
-            this.width,
-            this.height
-        );
     }
 
     //結合ルール
@@ -237,5 +230,42 @@ export class Boid{
             this.pos.y = this.ctx.canvas.height - this.height / 2;
             this.vel.y *= -1;
         }
+    }
+
+    draw(){
+        // キャラクターの幅やオフセットする量を加味して塗りつぶす
+        this.ctx.drawImage(
+            this.image,
+            this.pos.x - this.width / 2,
+            this.pos.y - this.height / 2,
+            this.width,
+            this.height
+        );
+    }
+
+    //自身の回転量を元に座標系を回転させる
+    rotationDraw(){
+        // 座標系を回転する前の状態を保存する
+        this.ctx.save();
+        // 自身の位置が座標系の中心と重なるように平行移動する
+        this.ctx.translate(this.pos.x, this.pos.y);
+        // 座標系を回転させる（angleの値で0radを指定した際、x軸方向に向かせるため Math.PI * 1.5 を引いている）
+        this.ctx.rotate(this.angle - Math.PI * 1.5);
+
+        // キャラクターの幅を考慮してオフセットする量
+        let offsetX = this.width / 2;
+        let offsetY = this.height / 2;
+
+        // キャラクターの幅やオフセットする量を加味して描画する
+        this.ctx.drawImage(
+            this.image,
+            -offsetX, // 先に translate で平行移動しているのでオフセットのみ行う
+            -offsetY, // 先に translate で平行移動しているのでオフセットのみ行う
+            this.width,
+            this.height
+        );
+
+        // 座標系を回転する前の状態に戻す
+        this.ctx.restore();
     }
 }
