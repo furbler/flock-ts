@@ -138,10 +138,9 @@ export class Boid{
         this.vel.x += this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
         this.vel.y += this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
         let speed = this.vel.length();
-        let limit = 4;
-        if(speed > limit){
-            this.vel.x = this.vel.x / speed * limit;
-            this.vel.y = this.vel.y / speed * limit;
+        if(speed > this.speed_limit){
+            this.vel.x = this.vel.x / speed * this.speed_limit;
+            this.vel.y = this.vel.y / speed * this.speed_limit;
         }
         this.pos.set(this.pos.x + this.vel.x, this.pos.y + this.vel.y);
 
@@ -173,9 +172,11 @@ export class Boid{
         //重心の計算(自身は含めない)
         tmpX /= (boids.length - 1);
         tmpY /= (boids.length - 1)
+
         //重心へ向かう速度変化量
-        this.cohesion.x = tmpX - this.pos.x;
-        this.cohesion.y = tmpY - this.pos.y;
+        let coef = 0.0001;
+        this.cohesion.x = (tmpX - this.pos.x) * coef;
+        this.cohesion.y = (tmpY - this.pos.y) * coef;
     }
 
     //分離ルール
@@ -193,8 +194,9 @@ export class Boid{
                 vel_y += (this.pos.y - boids[i].pos.y) / dist;
             }
         }
-        this.separation.x = vel_x;
-        this.separation.y = vel_y;
+        let coef = 0.01;
+        this.separation.x = vel_x * coef;
+        this.separation.y = vel_y * coef;
     }
 
     //整列ルール
@@ -209,8 +211,10 @@ export class Boid{
         //群れの速度の平均
         tmp_x /= (boids.length - 1);
         tmp_y /= (boids.length - 1);
-        this.alignment.x = tmp_x - this.vel.x;
-        this.alignment.y = tmp_y - this.vel.y;
+
+        let coef = 0.0001;
+        this.alignment.x = (tmp_x - this.vel.x) * coef;
+        this.alignment.y = (tmp_y - this.vel.y) * coef;
     }
 
 

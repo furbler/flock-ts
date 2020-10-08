@@ -9,17 +9,17 @@
         <script type="module" src="./build/src/main.js"></script>
     </head>
     <body>
+        <h1>birdoid</h1>
         <!-- ID 属性を持つ canvas エレメント -->
         <canvas id="main_canvas"></canvas>
-        <h1>birdoid</h1>
         <form name="parameter">
-            cohesion_coef：<input type="number" id="cohesion" value="0.003"><br>
-            separation_coef：<input type="number" id="separation" value="0.3"><br>
-            alignment_coef：<input type="number" id="alignment" value="0.002"><br><br>
-            separation_thres：<input type="number" id="separation_thres" value="100"><br>
-            speed_limit：<input type="number" id="speed_limit" value="4"><br>
+            結合係数 (cohesion_coef)：<input type="number" id="cohesion"><br>
+            分離係数 (separation_coef)：<input type="number" id="separation"><br>
+            整列係数 (alignment_coef)：<input type="number" id="alignment"><br>
+            分離距離 (separation_thres)：<input type="number" id="separation_thres"><br>
+            最大速度 (speed_limit)：<input type="number" id="speed_limit"><br><br>
             <input type="button" id="apply" value="適用">
-            <input type="button" id="reset" value="リセット"><br>
+            <input type="button" id="reset" value="リセット"><br><br>
         </form>
     </body>
 </html>

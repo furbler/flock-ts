@@ -3,9 +3,9 @@ import {Canvas2DUtility} from "./canvas2d"
 
 (() => {
     //canvasの幅
-    const CANVAS_WIDTH = 840;
+    const CANVAS_WIDTH = 640;
     //canvas の高さ
-    const CANVAS_HEIGHT = 700;
+    const CANVAS_HEIGHT = 500;
     //群れの個体数
     const FLOCK_NUM = 11;
 
@@ -24,19 +24,12 @@ import {Canvas2DUtility} from "./canvas2d"
     let boids: Array<Boid> = [];
 
     let param: Parameter = {
-        cohesion_coef: 0.003, //群れの中心に向かう度合
-        conhesion_default_string: "0.003",
-
-        separation_coef: 0.3, //仲間を避ける度合
-        separation_default_string: "0.3",
-
-        alignment_coef: 0.002, //群れの平均速度に合わせる度合
-        alignment_default_string: "0.002",
+        cohesion_coef: 30, //群れの中心に向かう度合
+        separation_coef: 30, //仲間を避ける度合
+        alignment_coef: 20, //群れの平均速度に合わせる度合
 
         separation_thres: 100, //分離ルールの距離の閾値
-        separation_thres_default_string: "100",
         speed_limit: 4, //個体の制限速度
-        speed_limit_default_string: "4"
     };
 
 
@@ -69,25 +62,26 @@ import {Canvas2DUtility} from "./canvas2d"
             let rad = 70;
             boids[i] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2, -2, i, param, 1.3, 'nooob', '../image/octopus_open.png');
         }
-
         console.log('画像の読み込み完了。');
 
-
+        //ボタンと関数を関連付ける
         document.getElementById("apply").addEventListener ("click", getValue, false);
         document.getElementById("reset").addEventListener ("click", clear, false);
+        //テキストボックスの値を初期化
+        clear();
     }
 
     //描画
     function animation(){
-
         // グローバルなアルファを必ず 1.0 で描画処理を開始する
         ctx.globalAlpha = 1.0;
         // 描画前に画面全体を暗いネイビーで塗りつぶす
         util.drawRect(0, 0, canvas.width, canvas.height, '#000000');
-
+        //速度変化量を計算する
         boids.map((boid) => {
             boid.update_calc(boids);
         });
+        //実際に位置を更新して描画
         boids.map((boid) => {
             boid.update_actual();
             boid.draw();
@@ -99,22 +93,37 @@ import {Canvas2DUtility} from "./canvas2d"
 
     //テキストボックスの文字を取得する
     function getValue(){
-        let num0: HTMLInputElement = <HTMLInputElement>document.getElementById("cohesion");
-        alert("結合ルールのパラメータは" + num0.value + "です。");
-        let num1: HTMLInputElement = <HTMLInputElement>document.getElementById("separation");
-        alert("分離ルールのパラメータは" + num1.value + "です。");
-        let num2 : HTMLInputElement = <HTMLInputElement>document.getElementById("alignment");
-        alert("整列ルールのパラメータは" + num2.value + "です。");
+        let coh: HTMLInputElement = <HTMLInputElement>document.getElementById("cohesion");
+        let sep: HTMLInputElement = <HTMLInputElement>document.getElementById("separation");
+        let alig: HTMLInputElement = <HTMLInputElement>document.getElementById("alignment");
+        let thres: HTMLInputElement = <HTMLInputElement>document.getElementById("separation_thres");
+        let limit: HTMLInputElement = <HTMLInputElement>document.getElementById("speed_limit");
+
+        boids.map((boid) => {
+            boid.cohesion_coef = parseFloat(coh.value); //群れの中心に向かう度合
+            boid.separation_coef = parseFloat(sep.value); //仲間を避ける度合
+            boid.alignment_coef = parseFloat(alig.value); //群れの平均速度に合わせる度合
+            boid.separation_thres = parseFloat(thres.value); //分離ルールの適用距離
+            boid.speed_limit = parseFloat(limit.value); //制限速度
+        });
+
+        console.log("以下のパラメータを更新しました。")
+        console.log("cohesion_coef = %s,", coh.value);
+        console.log("separation_coef = %s", sep.value); //仲間を避ける度合
+    console.log("alignment_coef = %s", alig.value); //群れの平均速度に合わせる度合
+    console.log("separation_thres = %s", thres.value); //分離ルールの適用距離
+    console.log("speed_limit = %s", limit.value); //制限速度
+    console.log("\n");
     }
 
     //テキストボックスの文字を初期化
     function clear(){
-        (<HTMLInputElement>document.getElementById("cohesion")).value = param.conhesion_default_string;
-        (<HTMLInputElement>document.getElementById("separation")).value = param.separation_default_string;
-        (<HTMLInputElement>document.getElementById("alignment")).value = param.alignment_default_string;
+        (<HTMLInputElement>document.getElementById("cohesion")).value = String(param.cohesion_coef);
+        (<HTMLInputElement>document.getElementById("separation")).value = String(param.separation_coef);
+        (<HTMLInputElement>document.getElementById("alignment")).value = String(param.alignment_coef);
 
-        (<HTMLInputElement>document.getElementById("separation_thres")).value = param.separation_thres_default_string;
-        (<HTMLInputElement>document.getElementById("speed_limit")).value = param.speed_limit_default_string;
+        (<HTMLInputElement>document.getElementById("separation_thres")).value = String(param.separation_thres);
+        (<HTMLInputElement>document.getElementById("speed_limit")).value = String(param.speed_limit);
     }
 
 })();
