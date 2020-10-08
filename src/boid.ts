@@ -69,6 +69,8 @@ export class Boid{
     alignment_coef: number; // パラメータ：群れの平均速度に合わせる度合
     //分離ルールで使う閾値
     separation_thres: number;
+    //最大(制限)速度
+    speed_limit: number;
 
     //描画などに利用する 2D コンテキスト
     ctx: CanvasRenderingContext2D;
@@ -98,11 +100,12 @@ export class Boid{
     //画像
     image: HTMLImageElement;
 
-    constructor(ctx, x, y, vx, vy, id, scale, type, imgPath,){
-        this.cohesion_coef = 0.003; //群れの中心に向かう度合
-        this.separation_coef = 0.3; //仲間を避ける度合
-        this.alignment_coef = 0.002; //群れの平均速度に合わせる度合
-        this.separation_thres = 100;
+    constructor(ctx, x, y, vx, vy, id, param: Parameter, scale, type, imgPath){
+        this.cohesion_coef = param.cohesion_coef; //群れの中心に向かう度合
+        this.separation_coef = param.separation_coef; //仲間を避ける度合
+        this.alignment_coef = param.alignment_coef; //群れの平均速度に合わせる度合
+        this.separation_thres = param.separation_thres; //分離ルールの適用距離
+        this.speed_limit = param.speed_limit; //制限速度
 
         this.ctx = ctx;
         this.pos = new Vector2(x, y);

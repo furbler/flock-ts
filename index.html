@@ -7,35 +7,19 @@
         <link rel="stylesheet" href="./css/style.css">
         <!-- JavaScript ファイルの読み込み -->
         <script type="module" src="./build/src/main.js"></script>
-        <script>
-         //テキストボックスの文字を取得する
-         function tbox1(){
-             let num0 = document.parameter.elements[0].value;
-             alert("結合ルールのパラメータは" + num0 + "です。");
-             let num1 = document.parameter.elements[1].value;
-             alert("分離ルールのパラメータは" + num1 + "です。");
-             let num2 = document.parameter.elements[2].value;
-             alert("整列ルールのパラメータは" + num2 + "です。");
-         }
-
-         //テキストボックスの文字を操作する
-         function clr(){
-             document.forms.parameter.elements[0].value="0.003";
-             document.forms.parameter.elements[1].value="0.3";
-             document.forms.parameter.elements[2].value="0.002";
-         }
-        </script>
     </head>
     <body>
         <!-- ID 属性を持つ canvas エレメント -->
         <canvas id="main_canvas"></canvas>
         <h1>birdoid</h1>
         <form name="parameter">
-            cohesion_coef：<input type="number" name="cohesion" value="0.003"><br>
-            separation_coef：<input type="number" name="separation" value="0.3"><br>
-            alignment_coef：<input type="number" name="alignment" value="0.002"><br><br>
-            <input type="button" value="適用" onclick="tbox1()">
-            <input type="button" value="リセット" onclick="clr()"><br>
+            cohesion_coef：<input type="number" id="cohesion" value="0.003"><br>
+            separation_coef：<input type="number" id="separation" value="0.3"><br>
+            alignment_coef：<input type="number" id="alignment" value="0.002"><br><br>
+            separation_thres：<input type="number" id="separation_thres" value="100"><br>
+            speed_limit：<input type="number" id="speed_limit" value="4"><br>
+            <input type="button" id="apply" value="適用">
+            <input type="button" id="reset" value="リセット"><br>
         </form>
     </body>
 </html>
