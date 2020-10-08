@@ -187,6 +187,34 @@ export class Boid{
                 vel_y += (this.pos.y - boids[i].pos.y) / dist;
             }
         }
+        //壁に対しても分離ルールを適用
+        let w_width = this.ctx.canvas.width;
+        let w_height = this.ctx.canvas.height;
+        //各壁との距離
+        let left = this.pos.x;
+        let right = w_width - this.pos.x;
+        let roof = this.pos.y;
+        let floor = w_height - this.pos.y;
+
+        //一定距離以下まで近づいた場合
+        if(left < this.separation_thres){
+            //離れる方向に加速
+            vel_x += 1 / left;
+        }
+        if(right < this.separation_thres){
+            //離れる方向に加速
+            vel_x -= 1 / right;
+        }
+        //一定距離以下まで近づいた場合
+        if(roof < this.separation_thres){
+            //離れる方向に加速
+            vel_y += 1 / roof;
+        }
+        if(floor< this.separation_thres){
+            //離れる方向に加速
+            vel_y -= 1 / floor;
+        }
+
         let coef = 0.01;
         this.separation.x = vel_x * coef;
         this.separation.y = vel_y * coef;
