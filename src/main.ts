@@ -2,9 +2,9 @@ import {Vector2, Boid} from "./boid"
 import {Canvas2DUtility} from "./canvas2d"
 
 (() => {
-    //canvasの幅
+    //canvasの幅の初期値
     const CANVAS_WIDTH = 600;
-    //canvas の高さ
+    //canvas の高さの初期値
     const CANVAS_HEIGHT = 400;
     //群れの個体数
     const FLOCK_NUM = 10;
@@ -67,10 +67,15 @@ import {Canvas2DUtility} from "./canvas2d"
         console.log('画像の読み込み完了。');
 
         //ボタンと関数を関連付ける
+        document.getElementById("change_size").addEventListener ("click", changeCanvasSize, false);
         document.getElementById("apply").addEventListener ("click", getValue, false);
-        document.getElementById("reset").addEventListener ("click", clear, false);
+        document.getElementById("reset").addEventListener ("click", reset, false);
+
+        //画面サイズ表記を初期化
+        (<HTMLInputElement>document.getElementById("canvas_width")).value = String(CANVAS_WIDTH);
+        (<HTMLInputElement>document.getElementById("canvas_height")).value = String(CANVAS_HEIGHT);
         //テキストボックスの値を初期化
-        clear();
+        reset();
     }
 
     //描画
@@ -91,6 +96,23 @@ import {Canvas2DUtility} from "./canvas2d"
 
         // 恒常ループのために描画処理を再帰呼出しする
         mainRequestID = requestAnimationFrame(animation);
+    }
+
+    //画面(canvas要素)のサイズを変更する
+    function changeCanvasSize(){
+        let s_width: HTMLInputElement = <HTMLInputElement>document.getElementById("canvas_width");
+        let s_height: HTMLInputElement = <HTMLInputElement>document.getElementById("canvas_height");
+        let width = parseFloat(s_width.value);
+        let height = parseFloat(s_height.value);
+
+        //指定サイズが現在のサイズと異なっていた場合
+        if(canvas.width !== width || canvas.height !== height){
+            canvas.width = width;
+            canvas.height = height;
+            console.log("画面サイズを幅%d, 高さ%dに変更しました。", width, height);
+        }else{
+            console.log("画面サイズに変更ありません。");
+        }
     }
 
     //テキストボックスの文字を取得する
@@ -119,7 +141,7 @@ import {Canvas2DUtility} from "./canvas2d"
     }
 
     //テキストボックスの文字を初期化
-    function clear(){
+    function reset(){
         (<HTMLInputElement>document.getElementById("cohesion")).value = String(param.cohesion_coef);
         (<HTMLInputElement>document.getElementById("separation")).value = String(param.separation_coef);
         (<HTMLInputElement>document.getElementById("alignment")).value = String(param.alignment_coef);
@@ -127,5 +149,4 @@ import {Canvas2DUtility} from "./canvas2d"
         (<HTMLInputElement>document.getElementById("separation_thres")).value = String(param.separation_thres);
         (<HTMLInputElement>document.getElementById("speed_limit")).value = String(param.speed_limit);
     }
-
 })();
