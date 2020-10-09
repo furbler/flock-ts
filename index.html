@@ -21,12 +21,19 @@
             <input type="button" id="apply" value="適用">
             <input type="button" id="reset" value="リセット"><br><br>
 
-            追加個体数 (add_boid)：<input type="number" id="add_boid"><br>
+            追加個体数 (add_boid)：<input type="number" id="add_boid"><br><br>
             <input type="button" id="add_boid_apply" value="個体追加"> <br><br>
 
             画面幅 (canvas_width)：<input type="number" id="canvas_width"><br>
             画面高さ (canvas_height)：<input type="number" id="canvas_height"><br><br>
             <input type="button" id="change_size" value="画面サイズ変更"> <br><br>
         </form>
+        <p>3つの係数は<a href="https://qiita.com/odanny/items/e0c0a00e13c2b4839cec" >それぞれのルール</a>で働く力の強さを調節します。</p>
+        <p>分離距離は分離ルールが発動する距離を、最大速度は個体の最大移動速度を設定します。
+
+        <p>個体を追加し過ぎたりするとバグってどこかへ行ってしまうことがありますが、ブラウザを再読込みすれば元に戻ります。</p>
+        <p>ブラウザの再読込すると画面サイズやパラメータはすべてリセットされます。</p>
+        <br>
+        <p>もしバグや面白い動きをするパラメータを見つけたら、<a href= "https://twitter.com/yukikaze_0">Twitter</a>とかで教えてもらえるととても嬉しいですヽ(´∇｀)ノ</p>
     </body>
 </html>
