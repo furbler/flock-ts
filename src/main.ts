@@ -7,7 +7,7 @@ import {Canvas2DUtility} from "./canvas2d"
     //canvas の高さの初期値
     const CANVAS_HEIGHT = 400;
     //群れの個体数
-    const FLOCK_NUM = 10;
+    const FLOCK_NUM = 6;
 
 
     //Canvas2D API をラップしたユーティリティクラス
@@ -70,6 +70,7 @@ import {Canvas2DUtility} from "./canvas2d"
         document.getElementById("change_size").addEventListener ("click", changeCanvasSize, false);
         document.getElementById("apply").addEventListener ("click", getValue, false);
         document.getElementById("reset").addEventListener ("click", reset, false);
+        document.getElementById("add_boid_apply").addEventListener ("click", add_boid, false);
 
         //画面サイズ表記を初期化
         (<HTMLInputElement>document.getElementById("canvas_width")).value = String(CANVAS_WIDTH);
@@ -148,5 +149,32 @@ import {Canvas2DUtility} from "./canvas2d"
 
         (<HTMLInputElement>document.getElementById("separation_thres")).value = String(param.separation_thres);
         (<HTMLInputElement>document.getElementById("speed_limit")).value = String(param.speed_limit);
+        (<HTMLInputElement>document.getElementById("add_boid")).value = "0";
+    }
+
+    //個体を追加する
+    function add_boid(){
+        let s_add_num: HTMLInputElement = <HTMLInputElement>document.getElementById("add_boid");
+        let add_num = parseFloat(s_add_num.value);
+        let boids_length = boids.length;
+        //0だったら終了
+        if(add_num <= 0) {return};
+        //console.log("angle = %f",  (2 * Math.PI / add_num) * 180 / Math.PI);
+
+        //群れの個体を生成
+        for(let i = 0; i < add_num; ++i){
+            let boid_type: string;
+            if((i % 2) === 0){
+                boid_type = '../image/octopus_open.png';
+            }else{
+                boid_type = '../image/squid_open.png';
+            }
+            //適当に配置
+            let angle = i * 2 * Math.PI / add_num;
+            //半径。キャンバスサイズに対しある程度小さくしないと(画面端ぎりぎりに配置されると)バグる
+            let rad = 100;
+            boids[boids_length + i] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2, -2, boids_length + i, param, 1, 'nooob', boid_type);
+        }
+        console.log('%d個体の追加完了。総数は%d', add_num, boids.length);
     }
 })();
