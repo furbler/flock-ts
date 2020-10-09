@@ -36,7 +36,7 @@ export class Canvas2DUtility {
      * @param {number} height - 塗りつぶす矩形の高さ
      * @param {string} [color] - 矩形を塗りつぶす際の色
      */
-    drawRect(x, y, width, height, color){
+    drawRect(x, y, width, height, color: string){
         // 色が指定されている場合はスタイルを設定する
         if(color != null){
             this.context2d.fillStyle = color;

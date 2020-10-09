@@ -1,12 +1,14 @@
-import { Boid } from "./boid.js";
+import { Vector2, Boid, Obstacle } from "./boid.js";
 import { Canvas2DUtility } from "./canvas2d.js";
 (function () {
     //canvasの幅の初期値
     var CANVAS_WIDTH = 600;
     //canvas の高さの初期値
     var CANVAS_HEIGHT = 400;
-    //群れの個体数
+    //群れの個体数の初期値/2
     var FLOCK_NUM = 6;
+    //障害物の初期配置数
+    var OBSTACLE_NUM = 1;
     //Canvas2D API をラップしたユーティリティクラス
     var util = null;
     //描画対象となる Canvas Element
@@ -17,6 +19,9 @@ import { Canvas2DUtility } from "./canvas2d.js";
     var mainRequestID = null;
     //群れの個体を格納
     var boids = [];
+    //障害物を格納
+    var obstacles = [];
+    //パラメータの初期化
     var param = {
         cohesion_coef: 20,
         separation_coef: 40,
@@ -43,14 +48,41 @@ import { Canvas2DUtility } from "./canvas2d.js";
     function initialize() {
         //画像拡大時のぼやけを防止するため、アンチエイリアスなどを切る
         ctx.imageSmoothingEnabled = false;
+        //障害物を設置
+        for (var i = 0; i < OBSTACLE_NUM; ++i) {
+            obstacles[i] = new Obstacle(util, canvas.width * 0.3, canvas.height * 0.4, 60, 60, '#cccc00');
+        }
         //群れの個体を生成
         for (var i = 0; i < FLOCK_NUM; ++i) {
             //適当に配置
             var angle = i * 2 * Math.PI / FLOCK_NUM;
-            var rad = 200; //半径
-            boids[i * 2] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2, -2, i * 2, param, 1, 'nooob', '../image/octopus_open.png');
-            rad = 80; //半径
-            boids[i * 2 + 1] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2, -2, i * 2 + 1, param, 1, 'nooob', '../image/squid_open.png');
+            var rad = canvas.height / 3; //半径
+            //配置予定座標
+            var new_boid_pos = new Vector2(rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2);
+            for (var j = 0; j < obstacles.length; ++j) {
+                var dist = new_boid_pos.distance(obstacles[j].pos) - obstacles[j].width;
+                //配置予定場所が障害物または壁と近すぎる場合、中心よりに配置を変更
+                if (dist < 10 || new_boid_pos.x < 10 || new_boid_pos.x > canvas.width - 10
+                    || new_boid_pos.y < 10 || new_boid_pos.y > canvas.height - 10) {
+                    console.log("配置変更前の座標 = (%f, %f)", new_boid_pos.x, new_boid_pos.y);
+                    new_boid_pos.x = rad * 0.3 * Math.cos(angle) + canvas.width / 2;
+                    new_boid_pos.y = rad * 0.3 * Math.sin(angle) + canvas.height / 2;
+                }
+            }
+            boids[i * 2] = new Boid(ctx, new_boid_pos.x, new_boid_pos.y, 2, -2, i * 2, param, 1, 'nooob', '../image/octopus_open.png');
+            rad = canvas.height / 5; //半径
+            //配置予定座標
+            new_boid_pos.set(rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2);
+            for (var j = 0; j < obstacles.length; ++j) {
+                var dist = new_boid_pos.distance(obstacles[j].pos) - obstacles[j].width;
+                //配置予定場所が障害物または壁と近すぎる場合、中心よりに配置を変更
+                if (dist < 10 || new_boid_pos.x < 10 || new_boid_pos.x > canvas.width - 10
+                    || new_boid_pos.y < 10 || new_boid_pos.y > canvas.height - 10) {
+                    new_boid_pos.x = rad * 0.3 * Math.cos(angle) + canvas.width / 2;
+                    new_boid_pos.y = rad * 0.3 * Math.sin(angle) + canvas.height / 2;
+                }
+            }
+            boids[i * 2 + 1] = new Boid(ctx, new_boid_pos.x, new_boid_pos.y, 2, -2, i * 2 + 1, param, 1, 'nooob', '../image/squid_open.png');
         }
         console.log('画像の読み込み完了。');
         //ボタンと関数を関連付ける
@@ -72,7 +104,11 @@ import { Canvas2DUtility } from "./canvas2d.js";
         util.drawRect(0, 0, canvas.width, canvas.height, '#000000');
         //速度変化量を計算する
         boids.map(function (boid) {
-            boid.update_calc(boids);
+            boid.update_calc(boids, obstacles);
+        });
+        //障害物を描画
+        obstacles.map(function (obstacle) {
+            obstacle.draw();
         });
         //実際に位置を更新して描画
         boids.map(function (boid) {
@@ -152,8 +188,20 @@ import { Canvas2DUtility } from "./canvas2d.js";
             //適当に配置
             var angle = i * 2 * Math.PI / add_num;
             //半径。キャンバスサイズに対しある程度小さくしないと(画面端ぎりぎりに配置されると)バグる
-            var rad = 100;
-            boids[boids_length + i] = new Boid(ctx, rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2, 2, -2, boids_length + i, param, 1, 'nooob', boid_type);
+            var rad = canvas.height / 3; //半径
+            //配置予定座標
+            var new_boid_pos = new Vector2(rad * Math.cos(angle) + canvas.width / 2, rad * Math.sin(angle) + canvas.height / 2);
+            for (var j = 0; j < obstacles.length; ++j) {
+                var dist = new_boid_pos.distance(obstacles[j].pos) - obstacles[j].width;
+                //配置予定場所が障害物または壁と近すぎる場合、中心よりに配置を変更
+                if (dist < 10 || new_boid_pos.x < 10 || new_boid_pos.x > canvas.width - 10
+                    || new_boid_pos.y < 10 || new_boid_pos.y > canvas.height - 10) {
+                    new_boid_pos.x = rad * 0.3 * Math.cos(angle) + canvas.width / 2;
+                    new_boid_pos.y = rad * 0.3 * Math.sin(angle) + canvas.height / 2;
+                }
+            }
+            //配置
+            boids[boids_length + i] = new Boid(ctx, new_boid_pos.x, new_boid_pos.y, 2, -2, boids_length + i, param, 1, 'nooob', boid_type);
         }
         console.log('%d個体の追加完了。総数は%d', add_num, boids.length);
     }

@@ -1,3 +1,5 @@
+import {Canvas2DUtility} from "./canvas2d"
+
  //座標を管理するためのクラス
 export class Vector2{
     x: number;
@@ -92,7 +94,7 @@ export class Boid{
     //敵のタイプ
     type: string;
 
-    //画像サイズ幅、高さ
+    //画像表示サイズ幅、高さ
     width: number;
     height: number;
     //画像ファイルパス
@@ -130,9 +132,9 @@ export class Boid{
     }
 
     //群れ全体の状態から各個体の状態変化量を求める
-    update_calc(boids: Array<Boid>){
+    update_calc(boids: Array<Boid>, obstacles: Array<Obstacle>){
         this.f_cohesion(boids);
-        this.f_separation(boids);
+        this.f_separation(boids, obstacles);
         this.f_alignment(boids);
     }
     //実際に各個体の状態を更新する
@@ -173,7 +175,7 @@ export class Boid{
     }
 
     //分離ルール
-    f_separation(boids: Array<Boid>){
+    f_separation(boids: Array<Boid>, obstacles: Array<Obstacle>){
         let vel_x = 0, vel_y = 0;
         for(let i = 0; i < boids.length; ++i){
             //自身は除く
@@ -187,6 +189,16 @@ export class Boid{
                 vel_y += (this.pos.y - boids[i].pos.y) / dist;
             }
         }
+        //障害物に対して分離ルール適用
+        for(let i = 0; i < obstacles.length; ++i){
+            let dist_obs = this.pos.distance(obstacles[i].pos) - obstacles[i].width;
+            //障害物との距離が基準以下の場合
+            if(dist_obs < this.separation_thres){
+                vel_x += (this.pos.x - obstacles[i].pos.x) / dist_obs;
+                vel_y += (this.pos.y - obstacles[i].pos.y) / dist_obs;
+            }
+        }
+
         //壁に対しても分離ルールを適用
         let w_width = this.ctx.canvas.width;
         let w_height = this.ctx.canvas.height;
@@ -295,5 +307,29 @@ export class Boid{
 
         // 座標系を回転する前の状態に戻す
         this.ctx.restore();
+    }
+}
+//設置する長方形の障害物
+export class Obstacle{
+    util: Canvas2DUtility;
+    //中心座標
+    pos: Vector2;
+    //幅、高さ
+    width: number;
+    height: number;
+    //色
+    color: string;
+
+    constructor(util: Canvas2DUtility, x, y, w, h, c){
+        this.util = util;
+        this.pos = new Vector2(x, y);
+        this.width = w;
+        this.height = h;
+        this.color = c;
+    }
+
+    draw(){
+        //矩形を描画
+        this.util.drawRect(this.pos.x - this.width / 2, this.pos.y - this.height / 2, this.width, this.height, this.color);
     }
 }
