@@ -28,6 +28,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         alignment_coef: 10,
         separation_thres: 40,
         speed_limit: 5,
+        sight_range: 100,
     };
     //ページのロードが完了したときに発火する load イベント
     window.addEventListener('load', function () {
@@ -141,12 +142,14 @@ import { Canvas2DUtility } from "./canvas2d.js";
         var alig = document.getElementById("alignment");
         var thres = document.getElementById("separation_thres");
         var limit = document.getElementById("speed_limit");
+        var sight = document.getElementById("sight_range");
         boids.map(function (boid) {
             boid.cohesion_coef = parseFloat(coh.value); //群れの中心に向かう度合
             boid.separation_coef = parseFloat(sep.value); //仲間を避ける度合
             boid.alignment_coef = parseFloat(alig.value); //群れの平均速度に合わせる度合
             boid.separation_thres = parseFloat(thres.value); //分離ルールの適用距離
             boid.speed_limit = parseFloat(limit.value); //制限速度
+            boid.sight_range = parseFloat(sight.value); //視界距離
         });
         console.log("以下のパラメータを更新しました。");
         console.log("cohesion_coef = %s,", coh.value);
@@ -154,6 +157,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         console.log("alignment_coef = %s", alig.value); //群れの平均速度に合わせる度合
         console.log("separation_thres = %s", thres.value); //分離ルールの適用距離
         console.log("speed_limit = %s", limit.value); //制限速度
+        console.log("sight_range = %s", sight.value); //制限速度
         console.log("\n");
     }
     //テキストボックスの文字を初期化
@@ -163,6 +167,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         document.getElementById("alignment").value = String(param.alignment_coef);
         document.getElementById("separation_thres").value = String(param.separation_thres);
         document.getElementById("speed_limit").value = String(param.speed_limit);
+        document.getElementById("sight_range").value = String(param.sight_range);
         document.getElementById("add_boid").value = "0";
     }
     //個体を追加する

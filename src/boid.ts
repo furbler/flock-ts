@@ -70,6 +70,8 @@ export class Boid{
     separation_thres: number;
     //最大(制限)速度
     speed_limit: number;
+    //視界範囲
+    sight_range: number;
 
     //描画などに利用する 2D コンテキスト
     ctx: CanvasRenderingContext2D;
@@ -108,6 +110,7 @@ export class Boid{
         this.alignment_coef = param.alignment_coef; //群れの平均速度に合わせる度合
         this.separation_thres = param.separation_thres; //分離ルールの適用距離
         this.speed_limit = param.speed_limit; //制限速度
+        this.sight_range = param.sight_range;
 
         this.ctx = ctx;
         this.pos = new Vector2(x, y);
@@ -141,8 +144,11 @@ export class Boid{
     update_actual(){
         this.vel.x += this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
         this.vel.y += this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
+        //制限速度を超えた場合
         let speed = this.vel.length();
         if(speed > this.speed_limit){
+            //減速させる
+            //減速しないと群れ全体が引っ張られて加速して飛び出してしまう
             this.vel.x = this.vel.x / speed * this.speed_limit;
             this.vel.y = this.vel.y / speed * this.speed_limit;
         }
@@ -158,15 +164,21 @@ export class Boid{
     f_cohesion(boids: Array<Boid>){
         //群れの座標値の合計を求める
         let tmpX = 0, tmpY = 0;
+        //視界内の個体数
+        let sight_boids_num = 0
         for(let i = 0; i < boids.length; ++i){
             //自身は除く
             if(this.id === i) continue;
-            tmpX += boids[i].pos.x;
-            tmpY += boids[i].pos.y;
+            //自身の視界内にいる場合
+            if(this.pos.distance(boids[i].pos) < this.sight_range) {
+                tmpX += boids[i].pos.x;
+                tmpY += boids[i].pos.y;
+                ++sight_boids_num;
+            }
         }
         //重心の計算(自身は含めない)
-        tmpX /= (boids.length - 1);
-        tmpY /= (boids.length - 1)
+        tmpX /= sight_boids_num;
+        tmpY /= sight_boids_num;
 
         //重心へ向かう速度変化量
         let coef = 0.0001;
@@ -235,15 +247,23 @@ export class Boid{
     //整列ルール
     f_alignment(boids: Array<Boid>){
         let tmp_x = 0, tmp_y = 0;
+
+        //視界内の個体数
+        let sight_boids_num = 0
+
         for(let i = 0; i < boids.length; ++i){
             //自身は除く
             if(this.id === i) continue;
-            tmp_x += boids[i].vel.x;
-            tmp_y += boids[i].vel.y;
+            //自身の視界内にいる場合
+            if(this.pos.distance(boids[i].pos) < this.sight_range) {
+                tmp_x += boids[i].vel.x;
+                tmp_y += boids[i].vel.y;
+                ++sight_boids_num;
+            }
         }
         //群れの速度の平均
-        tmp_x /= (boids.length - 1);
-        tmp_y /= (boids.length - 1);
+        tmp_x /= sight_boids_num;
+        tmp_y /= sight_boids_num;
 
         let coef = 0.0001;
         this.alignment.x = (tmp_x - this.vel.x) * coef;

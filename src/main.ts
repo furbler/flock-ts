@@ -34,6 +34,7 @@ import {Canvas2DUtility} from "./canvas2d"
         alignment_coef: 10, //群れの平均速度に合わせる度合
         separation_thres: 40, //分離ルールの距離の閾値
         speed_limit: 5, //個体の制限速度
+        sight_range: 100, //個体の視界距離
     };
 
 
@@ -167,6 +168,7 @@ import {Canvas2DUtility} from "./canvas2d"
         let alig: HTMLInputElement = <HTMLInputElement>document.getElementById("alignment");
         let thres: HTMLInputElement = <HTMLInputElement>document.getElementById("separation_thres");
         let limit: HTMLInputElement = <HTMLInputElement>document.getElementById("speed_limit");
+        let sight: HTMLInputElement = <HTMLInputElement>document.getElementById("sight_range");
 
         boids.map((boid) => {
             boid.cohesion_coef = parseFloat(coh.value); //群れの中心に向かう度合
@@ -174,6 +176,7 @@ import {Canvas2DUtility} from "./canvas2d"
             boid.alignment_coef = parseFloat(alig.value); //群れの平均速度に合わせる度合
             boid.separation_thres = parseFloat(thres.value); //分離ルールの適用距離
             boid.speed_limit = parseFloat(limit.value); //制限速度
+            boid.sight_range = parseFloat(sight.value); //視界距離
         });
 
         console.log("以下のパラメータを更新しました。")
@@ -182,6 +185,7 @@ import {Canvas2DUtility} from "./canvas2d"
     console.log("alignment_coef = %s", alig.value); //群れの平均速度に合わせる度合
     console.log("separation_thres = %s", thres.value); //分離ルールの適用距離
     console.log("speed_limit = %s", limit.value); //制限速度
+        console.log("sight_range = %s", sight.value); //制限速度
     console.log("\n");
     }
 
@@ -193,6 +197,7 @@ import {Canvas2DUtility} from "./canvas2d"
 
         (<HTMLInputElement>document.getElementById("separation_thres")).value = String(param.separation_thres);
         (<HTMLInputElement>document.getElementById("speed_limit")).value = String(param.speed_limit);
+        (<HTMLInputElement>document.getElementById("sight_range")).value = String(param.sight_range);
         (<HTMLInputElement>document.getElementById("add_boid")).value = "0";
     }
 

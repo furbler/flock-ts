@@ -7,4 +7,5 @@ type Parameter = {
 
     separation_thres: number; //分離ルールの距離の閾値
     speed_limit: number; //個体の制限速度
+    sight_range: number; //個体の視界の距離
 }

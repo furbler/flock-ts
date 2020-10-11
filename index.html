@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="./css/style.css">
         <!-- JavaScript ファイルの読み込み -->
         <script type="module" src="./build/src/main.js"></script>
+        <title>Birdoid</title>
 
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-180203542-1"></script>
@@ -19,7 +20,7 @@
         </script>
     </head>
     <body>
-        <h1>birdoid</h1>
+        <h1>Birdoid</h1>
         <!-- ID 属性を持つ canvas エレメント -->
         <canvas id="main_canvas"></canvas>
         <form name="parameter">
@@ -27,7 +28,8 @@
             分離係数 (separation_coef)：<input type="number" id="separation"><br>
             整列係数 (alignment_coef)：<input type="number" id="alignment"><br>
             分離距離 (separation_thres)：<input type="number" id="separation_thres"><br>
-            最大速度 (speed_limit)：<input type="number" id="speed_limit"><br><br>
+            最大速度 (speed_limit)：<input type="number" id="speed_limit"><br>
+            視界距離 (sight_range)：<input type="number" id="sight_range"><br><br>
             <input type="button" id="apply" value="適用">
             <input type="button" id="reset" value="リセット"><br><br>
 
