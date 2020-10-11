@@ -110,7 +110,7 @@ export class Boid{
         this.alignment_coef = param.alignment_coef; //群れの平均速度に合わせる度合
         this.separation_thres = param.separation_thres; //分離ルールの適用距離
         this.speed_limit = param.speed_limit; //制限速度
-        this.sight_range = param.sight_range;
+        this.sight_range = param.sight_range; //視界距離
 
         this.ctx = ctx;
         this.pos = new Vector2(x, y);
@@ -219,11 +219,16 @@ export class Boid{
         //障害物に対して分離ルール適用
         for(let i = 0; i < obstacles.length; ++i){
             //自身と障害物の外周までの距離（円形として考える）
-            let dist_obs = Math.abs(this.pos.distance(obstacles[i].pos) - obstacles[i].width);
+            let dist_obs = this.pos.distance(obstacles[i].pos) - obstacles[i].width;
             //0除算防止用
             if(dist_obs === 0) dist_obs = 1;
             //障害物との距離が基準以下の場合
             if(dist_obs < this.separation_thres){
+                //障害物の中に入り込んでいた場合
+                if(dist_obs < 0){
+                    //外側に出る力を強める
+                    dist_obs *= -0.5;
+                }
                 vel_x += (this.pos.x - obstacles[i].pos.x) / dist_obs;
                 vel_y += (this.pos.y - obstacles[i].pos.y) / dist_obs;
             }

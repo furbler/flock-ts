@@ -31,6 +31,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         separation_thres: 40,
         speed_limit: 5,
         sight_range: 100,
+        cursor_radius: 30,
     };
     //ページのロードが完了したときに発火する load イベント
     window.addEventListener('load', function () {
@@ -99,13 +100,13 @@ import { Canvas2DUtility } from "./canvas2d.js";
         //テキストボックスの値を初期化
         reset();
         //初期化しておく
-        mousePos = new Vector2(30, 30);
+        mousePos = new Vector2(param.cursor_radius, param.cursor_radius);
         //マウスの要素上の座標を取得
         canvas.addEventListener('mousemove', function (event) {
             mousePos.set(event.offsetX, event.offsetY);
         }, false);
         //マウスで動かす円形障害物を設置
-        obstacles[OBSTACLE_NUM] = new Obstacle(util, mousePos.x, mousePos.y, 30, -1, '#00cccc', true);
+        obstacles[OBSTACLE_NUM] = new Obstacle(util, mousePos.x, mousePos.y, param.cursor_radius, -1, '#00cccc', true);
     }
     //描画
     function animation() {
@@ -146,7 +147,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
             console.log("画面サイズに変更ありません。");
         }
     }
-    //テキストボックスの文字を取得する
+    //テキストボックスの値を取得する
     function getValue() {
         var coh = document.getElementById("cohesion");
         var sep = document.getElementById("separation");
@@ -154,6 +155,8 @@ import { Canvas2DUtility } from "./canvas2d.js";
         var thres = document.getElementById("separation_thres");
         var limit = document.getElementById("speed_limit");
         var sight = document.getElementById("sight_range");
+        var cursor = document.getElementById("cursor_radius");
+        //各個体の持つ情報を更新する
         boids.map(function (boid) {
             boid.cohesion_coef = parseFloat(coh.value); //群れの中心に向かう度合
             boid.separation_coef = parseFloat(sep.value); //仲間を避ける度合
@@ -162,6 +165,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
             boid.speed_limit = parseFloat(limit.value); //制限速度
             boid.sight_range = parseFloat(sight.value); //視界距離
         });
+        obstacles[OBSTACLE_NUM].width = parseFloat(cursor.value); //カーソルの大きさ
         console.log("以下のパラメータを更新しました。");
         console.log("cohesion_coef = %s,", coh.value);
         console.log("separation_coef = %s", sep.value); //仲間を避ける度合
@@ -169,6 +173,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         console.log("separation_thres = %s", thres.value); //分離ルールの適用距離
         console.log("speed_limit = %s", limit.value); //制限速度
         console.log("sight_range = %s", sight.value); //視界距離
+        console.log("cursor_radius = %s", cursor.value); //視界距離
         console.log("\n");
     }
     //テキストボックスの文字を初期化
@@ -179,6 +184,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         document.getElementById("separation_thres").value = String(param.separation_thres);
         document.getElementById("speed_limit").value = String(param.speed_limit);
         document.getElementById("sight_range").value = String(param.sight_range);
+        document.getElementById("cursor_radius").value = String(param.cursor_radius);
         document.getElementById("add_boid").value = "0";
     }
     //個体を追加する
