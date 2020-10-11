@@ -92,6 +92,13 @@ var Boid = /** @class */ (function () {
     };
     //実際に各個体の状態を更新する
     Boid.prototype.update_actual = function () {
+        var accx = this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
+        var accy = this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
+        //        if(this.id === 7){
+        //            if(isNaN(this.pos.x) === false && isNaN(this.pos.y) === false) {
+        //                console.log("No.%d の個体の加速度は(%f, %f)。", this.id, accx, accy);
+        //            }
+        //        }
         this.vel.x += this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
         this.vel.y += this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
         //制限速度を超えた場合
@@ -107,6 +114,13 @@ var Boid = /** @class */ (function () {
         this.angle = Math.atan2(this.vel.y, this.vel.x);
         //壁との衝突判定
         this.CollideWall();
+        //        if(this.id === 7){
+        //            if(isNaN(this.pos.x) === false && isNaN(this.pos.y) === false) {
+        //                console.log("No.%d の個体の位置は(%f, %f)。", this.id, this.pos.x, this.pos.y);
+        //                console.log("No.%d の個体の速度は(%f, %f)。", this.id, this.vel.x, this.vel.y);
+        //                console.log("===")
+        //            }
+        //        }
     };
     //結合ルール
     Boid.prototype.f_cohesion = function (boids) {
@@ -126,12 +140,21 @@ var Boid = /** @class */ (function () {
             }
         }
         //重心の計算(自身は含めない)
-        tmpX /= sight_boids_num;
-        tmpY /= sight_boids_num;
+        if (sight_boids_num !== 0) {
+            tmpX /= sight_boids_num;
+            tmpY /= sight_boids_num;
+        }
         //重心へ向かう速度変化量
         var coef = 0.0001;
-        this.cohesion.x = (tmpX - this.pos.x) * coef;
-        this.cohesion.y = (tmpY - this.pos.y) * coef;
+        //群れから孤立した場合
+        if (sight_boids_num === 0) {
+            this.cohesion.x = 0;
+            this.cohesion.y = 0;
+        }
+        else {
+            this.cohesion.x = (tmpX - this.pos.x) * coef;
+            this.cohesion.y = (tmpY - this.pos.y) * coef;
+        }
     };
     //分離ルール
     Boid.prototype.f_separation = function (boids, obstacles) {
@@ -142,6 +165,9 @@ var Boid = /** @class */ (function () {
                 continue;
             //自身と他の個体との距離
             var dist = this.pos.distance(boids[i].pos);
+            //0除算防止用
+            if (dist === 0)
+                dist = 1;
             //一定距離以下まで近づいた場合
             if (dist < this.separation_thres) {
                 //離れる方向に加速(距離が近づくほど早く離れる)
@@ -152,6 +178,9 @@ var Boid = /** @class */ (function () {
         //障害物に対して分離ルール適用
         for (var i = 0; i < obstacles.length; ++i) {
             var dist_obs = this.pos.distance(obstacles[i].pos) - obstacles[i].width;
+            //0除算防止用
+            if (dist_obs === 0)
+                dist_obs = 1;
             //障害物との距離が基準以下の場合
             if (dist_obs < this.separation_thres) {
                 vel_x += (this.pos.x - obstacles[i].pos.x) / dist_obs;
@@ -169,20 +198,24 @@ var Boid = /** @class */ (function () {
         //一定距離以下まで近づいた場合
         if (left < this.separation_thres) {
             //離れる方向に加速
-            vel_x += 1 / left;
+            if (left !== 0)
+                vel_x += 1 / left;
         }
         if (right < this.separation_thres) {
             //離れる方向に加速
-            vel_x -= 1 / right;
+            if (right !== 0)
+                vel_x -= 1 / right;
         }
         //一定距離以下まで近づいた場合
         if (roof < this.separation_thres) {
             //離れる方向に加速
-            vel_y += 1 / roof;
+            if (roof !== 0)
+                vel_y += 1 / roof;
         }
         if (floor < this.separation_thres) {
             //離れる方向に加速
-            vel_y -= 1 / floor;
+            if (floor !== 0)
+                vel_y -= 1 / floor;
         }
         var coef = 0.01;
         this.separation.x = vel_x * coef;
@@ -205,11 +238,20 @@ var Boid = /** @class */ (function () {
             }
         }
         //群れの速度の平均
-        tmp_x /= sight_boids_num;
-        tmp_y /= sight_boids_num;
+        if (sight_boids_num !== 0) {
+            tmp_x /= sight_boids_num;
+            tmp_y /= sight_boids_num;
+        }
         var coef = 0.0001;
-        this.alignment.x = (tmp_x - this.vel.x) * coef;
-        this.alignment.y = (tmp_y - this.vel.y) * coef;
+        //群れから孤立した場合
+        if (sight_boids_num === 0) {
+            this.alignment.x = 0;
+            this.alignment.y = 0;
+        }
+        else {
+            this.alignment.x = (tmp_x - this.vel.x) * coef;
+            this.alignment.y = (tmp_y - this.vel.y) * coef;
+        }
     };
     //壁との衝突判定
     Boid.prototype.CollideWall = function () {
@@ -223,7 +265,7 @@ var Boid = /** @class */ (function () {
             this.vel.x *= -1;
         }
         //上下の壁に衝突していた場合
-        if (this.pos.y - this.height / 2 < 0) {
+        else if (this.pos.y - this.height / 2 < 0) {
             this.pos.y = this.height / 2;
             this.vel.y *= -1;
         }
