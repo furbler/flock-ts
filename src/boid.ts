@@ -218,7 +218,8 @@ export class Boid{
         }
         //障害物に対して分離ルール適用
         for(let i = 0; i < obstacles.length; ++i){
-            let dist_obs = this.pos.distance(obstacles[i].pos) - obstacles[i].width;
+            //自身と障害物の外周までの距離（円形として考える）
+            let dist_obs = Math.abs(this.pos.distance(obstacles[i].pos) - obstacles[i].width);
             //0除算防止用
             if(dist_obs === 0) dist_obs = 1;
             //障害物との距離が基準以下の場合

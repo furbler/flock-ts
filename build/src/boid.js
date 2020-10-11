@@ -165,7 +165,8 @@ var Boid = /** @class */ (function () {
         }
         //障害物に対して分離ルール適用
         for (var i = 0; i < obstacles.length; ++i) {
-            var dist_obs = this.pos.distance(obstacles[i].pos) - obstacles[i].width;
+            //自身と障害物の外周までの距離（円形として考える）
+            var dist_obs = Math.abs(this.pos.distance(obstacles[i].pos) - obstacles[i].width);
             //0除算防止用
             if (dist_obs === 0)
                 dist_obs = 1;
