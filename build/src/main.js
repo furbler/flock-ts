@@ -21,6 +21,8 @@ import { Canvas2DUtility } from "./canvas2d.js";
     var boids = [];
     //障害物を格納
     var obstacles = [];
+    //マウスのcanvas上の座標
+    var mousePos;
     //パラメータの初期化
     var param = {
         cohesion_coef: 20,
@@ -96,6 +98,14 @@ import { Canvas2DUtility } from "./canvas2d.js";
         document.getElementById("canvas_height").value = String(CANVAS_HEIGHT);
         //テキストボックスの値を初期化
         reset();
+        //初期化しておく
+        mousePos = new Vector2(30, 30);
+        //マウスの要素上の座標を取得
+        canvas.addEventListener('mousemove', function (event) {
+            mousePos.set(event.offsetX, event.offsetY);
+        }, false);
+        //マウスで動かす円形障害物を設置
+        obstacles[OBSTACLE_NUM] = new Obstacle(util, mousePos.x, mousePos.y, 30, -1, '#00cccc', true);
     }
     //描画
     function animation() {
@@ -109,6 +119,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         });
         //障害物を描画
         obstacles.map(function (obstacle) {
+            obstacle.update(mousePos);
             obstacle.draw();
         });
         //実際に位置を更新して描画
@@ -157,7 +168,7 @@ import { Canvas2DUtility } from "./canvas2d.js";
         console.log("alignment_coef = %s", alig.value); //群れの平均速度に合わせる度合
         console.log("separation_thres = %s", thres.value); //分離ルールの適用距離
         console.log("speed_limit = %s", limit.value); //制限速度
-        console.log("sight_range = %s", sight.value); //制限速度
+        console.log("sight_range = %s", sight.value); //視界距離
         console.log("\n");
     }
     //テキストボックスの文字を初期化

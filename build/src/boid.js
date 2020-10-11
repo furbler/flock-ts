@@ -94,11 +94,6 @@ var Boid = /** @class */ (function () {
     Boid.prototype.update_actual = function () {
         var accx = this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
         var accy = this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
-        //        if(this.id === 7){
-        //            if(isNaN(this.pos.x) === false && isNaN(this.pos.y) === false) {
-        //                console.log("No.%d の個体の加速度は(%f, %f)。", this.id, accx, accy);
-        //            }
-        //        }
         this.vel.x += this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
         this.vel.y += this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
         //制限速度を超えた場合
@@ -114,13 +109,6 @@ var Boid = /** @class */ (function () {
         this.angle = Math.atan2(this.vel.y, this.vel.x);
         //壁との衝突判定
         this.CollideWall();
-        //        if(this.id === 7){
-        //            if(isNaN(this.pos.x) === false && isNaN(this.pos.y) === false) {
-        //                console.log("No.%d の個体の位置は(%f, %f)。", this.id, this.pos.x, this.pos.y);
-        //                console.log("No.%d の個体の速度は(%f, %f)。", this.id, this.vel.x, this.vel.y);
-        //                console.log("===")
-        //            }
-        //        }
     };
     //結合ルール
     Boid.prototype.f_cohesion = function (boids) {
@@ -299,18 +287,31 @@ var Boid = /** @class */ (function () {
     return Boid;
 }());
 export { Boid };
-//設置する長方形の障害物
+//設置する障害物
 var Obstacle = /** @class */ (function () {
-    function Obstacle(util, x, y, w, h, c) {
+    function Obstacle(util, x, y, w, h, c, move) {
+        if (move === void 0) { move = false; }
         this.util = util;
         this.pos = new Vector2(x, y);
         this.width = w;
         this.height = h;
         this.color = c;
+        this.move = move;
     }
+    Obstacle.prototype.update = function (mousePos) {
+        if (this.move) {
+            this.pos.set(mousePos.x, mousePos.y);
+        }
+    };
     Obstacle.prototype.draw = function () {
-        //矩形を描画
-        this.util.drawRect(this.pos.x - this.width / 2, this.pos.y - this.height / 2, this.width, this.height, this.color);
+        if (this.height < 0) {
+            //円を描画
+            this.util.drawCircle(this.pos.x, this.pos.y, this.width, this.color);
+        }
+        else {
+            //矩形を描画
+            this.util.drawRect(this.pos.x - this.width / 2, this.pos.y - this.height / 2, this.width, this.height, this.color);
+        }
     };
     return Obstacle;
 }());
