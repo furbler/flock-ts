@@ -3,8 +3,8 @@
 #同じディレクトリ内にあるファイルに適用される
 
 #"./hogehoge"の形の文字列を含むファイル一覧を取得
-greps=$(grep -l  "\"\./.*\"" *)
-#自身を消す。この記法はbashのみ
+greps=$(grep -l  "\"\./.*\"" ./build/src/*.js)
+#自身を除く。この記法はbashのみ
 files=${greps/addExtension.sh/}
 
 echo "change path = " $files

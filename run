@@ -1,6 +1,0 @@
-#!/bin/bash
-
-tsc -p tsconfig.json
-cd ./build/src/
-./addExtension.sh
-cd ../../
