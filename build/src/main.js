@@ -25,13 +25,14 @@ import { Canvas2DUtility } from "./canvas2d.js";
     var mousePos;
     //パラメータの初期化
     var param = {
-        cohesion_coef: 20,
+        cohesion_coef: 40,
         separation_coef: 40,
         alignment_coef: 10,
         separation_thres: 40,
-        speed_limit: 5,
+        speed_limit: 3,
         sight_range: 100,
-        cursor_radius: 30,
+        cursor_radius: 50,
+        acceleration_limit: 0.1,
     };
     //ページのロードが完了したときに発火する load イベント
     window.addEventListener('load', function () {

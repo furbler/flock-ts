@@ -17,6 +17,43 @@ var Vector2 = /** @class */ (function () {
             this.y = y;
         }
     };
+    //実数倍を計算
+    Vector2.prototype.product = function (x) {
+        this.x *= x;
+        this.y *= x;
+    };
+    //内積計算
+    Vector2.prototype.dot_product = function (vec) {
+        return this.x * vec.x + this.y * vec.y;
+    };
+    //外積計算
+    //this x vec
+    Vector2.prototype.cross_product = function (vec) {
+        return this.x * vec.y - this.y * vec.x;
+    };
+    //自身のベクトルからendVecのなす角(rad)
+    //右回りを正とする
+    Vector2.prototype.getAngleTo = function (endVec) {
+        var normalize = this.length() * endVec.length();
+        //エラー通知？
+        if (normalize === 0)
+            return -100;
+        var dot = this.dot_product(endVec);
+        var cross = this.cross_product(endVec);
+        //内積が0
+        if (dot === 0) {
+            if (cross / normalize === 1) {
+                return Math.PI * 0.5;
+            }
+            else if (cross / normalize === -1) {
+                return -Math.PI * 0.5;
+            }
+            else {
+                return -100;
+            }
+        }
+        return Math.atan2(cross, dot);
+    };
     //対象のVector2クラスのインスタンスとの距離を返す
     Vector2.prototype.distance = function (target) {
         var x = this.x - target.x;
@@ -64,10 +101,12 @@ var Boid = /** @class */ (function () {
         this.separation_thres = param.separation_thres; //分離ルールの適用距離
         this.speed_limit = param.speed_limit; //制限速度
         this.sight_range = param.sight_range; //視界距離
+        this.acceleration_limit = param.acceleration_limit; //制限加速度
         this.ctx = ctx;
         this.pos = new Vector2(x, y);
         this.pos = new Vector2(x, y);
         this.vel = new Vector2(vx, vy);
+        this.angleVel = 0;
         //進行方向を向く
         this.angle = Math.atan2(vy, vx);
         this.cohesion = new Vector2(0, 0);
@@ -94,15 +133,28 @@ var Boid = /** @class */ (function () {
     Boid.prototype.update_actual = function () {
         var accx = this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
         var accy = this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
-        this.vel.x += this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
-        this.vel.y += this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
+        var accVec = new Vector2(accx, accy);
+        //制限加速度を超えていたら制限加速度に抑える
+        if (accVec.length() > this.acceleration_limit)
+            accVec.product(this.acceleration_limit / accVec.length());
+        var tmpVel = new Vector2(this.vel.x + accVec.x, this.vel.y + accVec.y);
+        //角加速度
+        var angleAmount = this.vel.getAngleTo(tmpVel);
+        //制限各加速度を超えていたら
+        if (angleAmount > 3 * Math.PI / 180) {
+            //制限角加速度に抑える
+            this.vel.x = this.vel.x * Math.cos(angleAmount) - this.vel.y * Math.sin(angleAmount);
+            this.vel.y = this.vel.x * Math.sin(angleAmount) + this.vel.y * Math.cos(angleAmount);
+        }
+        else {
+            this.vel.set(tmpVel.x, tmpVel.y);
+        }
         //制限速度を超えた場合
         var speed = this.vel.length();
         if (speed > this.speed_limit) {
             //減速させる
             //減速しないと群れ全体が引っ張られて加速して飛び出してしまう
-            this.vel.x = this.vel.x / speed * this.speed_limit;
-            this.vel.y = this.vel.y / speed * this.speed_limit;
+            this.vel.product(this.speed_limit / speed);
         }
         this.pos.set(this.pos.x + this.vel.x, this.pos.y + this.vel.y);
         //進行方向を向く
@@ -252,20 +304,20 @@ var Boid = /** @class */ (function () {
         //左右の壁に衝突していた場合
         if (this.pos.x - this.width / 2 < 0) {
             this.pos.x = this.width / 2;
-            this.vel.x *= -1;
+            this.vel.x = 0;
         }
         else if (this.pos.x + this.width / 2 > this.ctx.canvas.width) {
             this.pos.x = this.ctx.canvas.width - this.width / 2;
-            this.vel.x *= -1;
+            this.vel.x = 0;
         }
         //上下の壁に衝突していた場合
         else if (this.pos.y - this.height / 2 < 0) {
             this.pos.y = this.height / 2;
-            this.vel.y *= -1;
+            this.vel.y = 0;
         }
         else if (this.pos.y + this.height / 2 > this.ctx.canvas.height) {
             this.pos.y = this.ctx.canvas.height - this.height / 2;
-            this.vel.y *= -1;
+            this.vel.y = 0;
         }
     };
     Boid.prototype.draw = function () {

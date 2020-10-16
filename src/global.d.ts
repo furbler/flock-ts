@@ -1,3 +1,4 @@
+//各個体に与えられるパラメータ
 type Parameter = {
     cohesion_coef: number; //群れの中心に向かう度合
     separation_coef: number; //仲間を避ける度合
@@ -7,4 +8,5 @@ type Parameter = {
     speed_limit: number; //個体の制限速度
     sight_range: number; //個体の視界の距離
     cursor_radius: number; //カーソルで動かす障害物の半径
+    acceleration_limit: number; //制限加速度
 }

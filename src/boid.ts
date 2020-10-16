@@ -11,7 +11,7 @@ export class Vector2{
     }
 
      //ベクトルの長さを返す
-    length(){
+    length(): number{
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
@@ -21,8 +21,43 @@ export class Vector2{
         if(y != null){this.y = y;}
     }
 
+    //実数倍を計算
+    product(x: number){
+        this.x *= x;
+        this.y *= x;
+    }
+    //内積計算
+    dot_product(vec: Vector2): number{
+        return this.x * vec.x + this.y * vec.y;
+    }
+    //外積計算
+    //this x vec
+    cross_product(vec: Vector2): number{
+        return this.x * vec.y - this.y * vec.x;
+    }
+    //自身のベクトルからendVecのなす角(rad)
+    //右回りを正とする
+    getAngleTo(endVec: Vector2): number{
+        let normalize = this.length() * endVec.length();
+        //エラー通知？
+        if(normalize === 0) return -100;
+        let dot = this.dot_product(endVec);
+        let cross = this.cross_product(endVec);
+        //内積が0
+        if(dot === 0){
+            if(cross / normalize === 1){
+                return Math.PI * 0.5;
+            }else if(cross / normalize === -1){
+                return -Math.PI * 0.5;
+            }else{
+                return -100;
+            }
+        }
+        return Math.atan2(cross, dot);
+    }
+
     //対象のVector2クラスのインスタンスとの距離を返す
-    distance(target){
+    distance(target: Vector2): number{
         let x = this.x - target.x;
         let y = this.y - target.y;
         return Math.sqrt(x * x + y * y);
@@ -70,6 +105,8 @@ export class Boid{
     separation_thres: number;
     //最大(制限)速度
     speed_limit: number;
+    //制限加速度
+    acceleration_limit: number;
     //視界範囲
     sight_range: number;
 
@@ -81,6 +118,8 @@ export class Boid{
     pos: Vector2;
     // 移動量(速度)
     vel: Vector2;
+    //角加速度
+    angleVel: number;
     //向いている角度(進行方向)
     //x軸方向を0radとする(tan関数などに合わせるため)
     angle: number;
@@ -90,6 +129,7 @@ export class Boid{
     separation: Vector2;
     //整列ルールによる速度変化量
     alignment: Vector2;
+
 
     // 個体を識別するid
     id: number;
@@ -111,11 +151,13 @@ export class Boid{
         this.separation_thres = param.separation_thres; //分離ルールの適用距離
         this.speed_limit = param.speed_limit; //制限速度
         this.sight_range = param.sight_range; //視界距離
+        this.acceleration_limit = param.acceleration_limit; //制限加速度
 
         this.ctx = ctx;
         this.pos = new Vector2(x, y);
         this.pos = new Vector2(x, y);
         this.vel = new Vector2(vx, vy);
+        this.angleVel = 0;
         //進行方向を向く
         this.angle = Math.atan2(vy, vx);
         this.cohesion = new Vector2(0, 0);
@@ -142,20 +184,32 @@ export class Boid{
     }
     //実際に各個体の状態を更新する
     update_actual(){
-
         let accx = this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
         let accy = this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
 
-        this.vel.x += this.cohesion_coef * this.cohesion.x + this.separation_coef * this.separation.x + this.alignment_coef * this.alignment.x;
-        this.vel.y += this.cohesion_coef * this.cohesion.y + this.separation_coef * this.separation.y + this.alignment_coef * this.alignment.y;
+        let accVec: Vector2 = new Vector2(accx, accy);
+
+        //制限加速度を超えていたら制限加速度に抑える
+        if(accVec.length() > this.acceleration_limit) accVec.product(this.acceleration_limit / accVec.length());
+
+        let tmpVel = new Vector2(this.vel.x + accVec.x, this.vel.y + accVec.y);
+        //角加速度
+        let angleAmount = this.vel.getAngleTo(tmpVel);
+        //制限各加速度を超えていたら
+        if(angleAmount > 3 * Math.PI / 180){
+            //制限角加速度に抑える
+            this.vel.x = this.vel.x * Math.cos(angleAmount) - this.vel.y * Math.sin(angleAmount);
+            this.vel.y = this.vel.x * Math.sin(angleAmount) + this.vel.y * Math.cos(angleAmount);
+        }else{
+            this.vel.set(tmpVel.x, tmpVel.y);
+        }
 
         //制限速度を超えた場合
         let speed = this.vel.length();
         if(speed > this.speed_limit){
             //減速させる
             //減速しないと群れ全体が引っ張られて加速して飛び出してしまう
-            this.vel.x = this.vel.x / speed * this.speed_limit;
-            this.vel.y = this.vel.y / speed * this.speed_limit;
+            this.vel.product(this.speed_limit / speed);
         }
         this.pos.set(this.pos.x + this.vel.x, this.pos.y + this.vel.y);
         //進行方向を向く
@@ -307,19 +361,19 @@ export class Boid{
         //左右の壁に衝突していた場合
         if(this.pos.x - this.width / 2 < 0){
             this.pos.x = this.width / 2;
-            this.vel.x *= -1;
+            this.vel.x = 0;
         }else if(this.pos.x + this.width / 2 > this.ctx.canvas.width){
             this.pos.x = this.ctx.canvas.width - this.width / 2;
-            this.vel.x *= -1;
+            this.vel.x = 0;
         }
         //上下の壁に衝突していた場合
         else if(this.pos.y - this.height / 2 < 0){
             this.pos.y = this.height / 2;
-            this.vel.y *= -1;
+            this.vel.y = 0;
         }
         else if(this.pos.y + this.height / 2 > this.ctx.canvas.height){
             this.pos.y = this.ctx.canvas.height - this.height / 2;
-            this.vel.y *= -1;
+            this.vel.y = 0;
         }
     }
 
