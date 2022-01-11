@@ -1,53 +1,58 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <!-- 文字コードを指定 -->
-        <meta charset="UTF-8">
-        <!-- スタイルシートの読み込み -->
-        <link rel="stylesheet" href="./css/style.css">
-        <!-- JavaScript ファイルの読み込み -->
-        <script type="module" src="./build/main.js"></script>
-        <title>Birdoid</title>
 
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-180203542-1"></script>
-        <script>
-         window.dataLayer = window.dataLayer || [];
-         function gtag(){dataLayer.push(arguments);}
-         gtag('js', new Date());
+<head>
+    <!-- 文字コードを指定 -->
+    <meta charset="UTF-8">
+    <!-- 検索結果に表示しない -->
+    <meta name="robots" content="noindex">
+    <!-- スタイルシートの読み込み -->
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- JavaScript ファイルの読み込み -->
+    <script type="module" src="./dist/main.js"></script>
+    <title>Birdoid</title>
 
-         gtag('config', 'UA-180203542-1');
-        </script>
-    </head>
-    <body>
-        <h1>Birdoid</h1>
-        <!-- ID 属性を持つ canvas エレメント -->
-        <canvas id="main_canvas"></canvas>
-        <form name="parameter">
-            結合係数 (cohesion_coef)：<input type="number" id="cohesion"><br>
-            分離係数 (separation_coef)：<input type="number" id="separation"><br>
-            整列係数 (alignment_coef)：<input type="number" id="alignment"><br>
-            分離距離 (separation_thres)：<input type="number" id="separation_thres"><br>
-            最大速度 (speed_limit)：<input type="number" id="speed_limit"><br>
-            視界距離 (sight_range)：<input type="number" id="sight_range"><br>
-            カーソルの半径の大きさ (cursor_radius)：<input type="number" id="cursor_radius"><br><br>
-            <input type="button" id="apply" value="適用">
-            <input type="button" id="reset" value="リセット"><br><br>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-180203542-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-            追加個体数 (add_boid)：<input type="number" id="add_boid"><br><br>
-            <input type="button" id="add_boid_apply" value="個体追加"> <br><br>
+        gtag('config', 'UA-180203542-1');
+    </script>
+</head>
 
-            画面幅 (canvas_width)：<input type="number" id="canvas_width"><br>
-            画面高さ (canvas_height)：<input type="number" id="canvas_height"><br><br>
-            <input type="button" id="change_size" value="画面サイズ変更"> <br><br>
-        </form>
-        <p>黄色い四角は障害物です。個体たちはこれを避けるよう動きます。</p>
-        <p>3つの係数は<a href="https://qiita.com/odanny/items/e0c0a00e13c2b4839cec" >それぞれのルール</a>で働く力の強さを調節します。</p>
-        <p>分離距離は分離ルールが発動する距離を、最大速度は個体の最大移動速度を設定します。
+<body>
+    <h1>Birdoid</h1>
+    <!-- ID 属性を持つ canvas エレメント -->
+    <canvas id="main_canvas"></canvas>
+    <form name="parameter">
+        結合係数 (cohesion_coef)：<input type="number" id="cohesion"><br>
+        分離係数 (separation_coef)：<input type="number" id="separation"><br>
+        整列係数 (alignment_coef)：<input type="number" id="alignment"><br>
+        分離距離 (separation_thres)：<input type="number" id="separation_thres"><br>
+        最大速度 (speed_limit)：<input type="number" id="speed_limit"><br>
+        視界距離 (sight_range)：<input type="number" id="sight_range"><br>
+        カーソルの半径の大きさ (cursor_radius)：<input type="number" id="cursor_radius"><br><br>
+        <input type="button" id="apply" value="適用">
+        <input type="button" id="reset" value="リセット"><br><br>
 
-        <p>個体を追加し過ぎたりするとバグってどこかへ行ってしまうことがありますが、ブラウザを再読込みすれば元に戻ります。</p>
-        <p>ブラウザの再読込すると画面サイズやパラメータはすべてリセットされます。</p>
-        <br>
-        <p>もしバグや面白い動きをするパラメータを見つけたら、<a href= "https://twitter.com/yukikaze_0">Twitter</a>とかで教えてもらえるととても嬉しいですヽ(´∇｀)ノ</p>
-    </body>
+        追加個体数 (add_boid)：<input type="number" id="add_boid"><br><br>
+        <input type="button" id="add_boid_apply" value="個体追加"> <br><br>
+
+        画面幅 (canvas_width)：<input type="number" id="canvas_width"><br>
+        画面高さ (canvas_height)：<input type="number" id="canvas_height"><br><br>
+        <input type="button" id="change_size" value="画面サイズ変更"> <br><br>
+    </form>
+    <p>黄色い四角は障害物です。個体たちはこれを避けるよう動きます。</p>
+    <p>3つの係数は<a href="https://qiita.com/odanny/items/e0c0a00e13c2b4839cec">それぞれのルール</a>で働く力の強さを調節します。</p>
+    <p>分離距離は分離ルールが発動する距離を、最大速度は個体の最大移動速度を設定します。
+
+    <p>個体を追加し過ぎたりするとバグってどこかへ行ってしまうことがありますが、ブラウザを再読込みすれば元に戻ります。</p>
+    <p>ブラウザの再読込すると画面サイズやパラメータはすべてリセットされます。</p>
+    <br>
+    <p>もしバグや面白い動きをするパラメータを見つけたら、<a href="https://twitter.com/yukikaze_0">Twitter</a>とかで教えてもらえるととても嬉しいですヽ(´∇｀)ノ</p>
+</body>
+
 </html>
